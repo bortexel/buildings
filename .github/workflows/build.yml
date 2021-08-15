@@ -25,6 +25,7 @@ jobs:
           name: build-artifacts
           path: buildings
   build-docker:
+    needs: build-go
     name: Build Docker Image
     runs-on: ubuntu-latest
     steps:
