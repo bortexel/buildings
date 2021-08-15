@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     volumes:
       - mysql-data:/var/lib/mysql
+      - /etc/bortexel/buildings:/home/container/data
   server:
     image: localhost:5000/bortexel/buildings:latest
     restart: always
