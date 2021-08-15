@@ -116,6 +116,10 @@ func main() {
 							bytes := make([]byte, 256)
 							binary.BigEndian.PutUint64(bytes[:], uint64(state))
 							for _, b := range bytes {
+								if int(b) > len(region.BlockStatePalette) {
+									continue
+								}
+
 								item := region.BlockStatePalette[b]
 								items[item.Name] += 1
 							}
