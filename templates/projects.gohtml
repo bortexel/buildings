@@ -1,0 +1,18 @@
+{{ template "base" . }}
+{{ define "content" }}
+    <h1>Проекты</h1>
+    <br>
+    <div class="row">
+        {{ range .Data }}
+            <div class="col-sm-3">
+                <div class="card" style="margin-bottom: 24px">
+                    <div class="card-body">
+                        <h3>{{ .Name }}</h3>
+                        {{ .Description }}
+                        <a href="/projects/{{ .ID }}" class="btn btn-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {{ end }}
+    </div>
+{{ end }}

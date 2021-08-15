@@ -40,6 +40,16 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+	router.Route("/", func(r chi.Router) {
+		router.Get("/projects", view("projects", func(r *http.Request) interface{} {
+			return AllProjects()
+		}))
+
+		router.Get("/projects/{id}", view("project", func(r *http.Request) interface{} {
+			return ProjectByID(r)
+		}))
+	})
+
 	router.Route("/api/v1", func(router chi.Router) {
 		router.Get("/projects", endpoint(ListProjects))
 		router.Get("/projects/{id}", endpoint(FindProject))

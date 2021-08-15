@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"text/template"
 )
 
 type EndpointHandler func(r *http.Request) (interface{}, error)
@@ -33,5 +36,27 @@ func endpoint(handler EndpointHandler) func(w http.ResponseWriter, r *http.Reque
 
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(bytes)
+	}
+}
+
+func view(name string, provider func(r *http.Request) interface{}) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(fmt.Sprintf("templates/%s.gohtml", name), "templates/base.gohtml")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+
+		err = tmpl.Execute(w, struct {
+			Data interface{}
+		}{
+			provider(r),
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
 	}
 }

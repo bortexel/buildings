@@ -8,21 +8,30 @@ import (
 
 type Project struct {
 	PrimaryKey
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 	Timestamps
 }
 
-func FindProject(r *http.Request) (interface{}, error) {
+func ProjectByID(r *http.Request) *Project {
 	id := chi.URLParam(r, "id")
 	var project *Project
 	Database.Find(&project, id)
-	return project, nil
+	return project
+}
+
+func FindProject(r *http.Request) (interface{}, error) {
+	return ProjectByID(r), nil
+}
+
+func AllProjects() []Project {
+	var projects []Project
+	Database.Find(&projects)
+	return projects
 }
 
 func ListProjects(_ *http.Request) (interface{}, error) {
-	var projects []Project
-	Database.Find(&projects)
-	return projects, nil
+	return AllProjects(), nil
 }
 
 func (p *Project) CreateResource(id string, name string, amount uint) *Resource {
