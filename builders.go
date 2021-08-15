@@ -86,14 +86,19 @@ func main() {
 						return err
 					}
 
-					project, err := litematica.Load(reader)
+					liteProject, err := litematica.Load(reader)
 					if err != nil {
 						return err
 					}
 
-					items := make(map[string]int)
+					project := &Project{
+						Name: liteProject.Metadata.Name,
+					}
 
-					for name, region := range project.Regions {
+					Database.Save(project)
+
+					items := make(map[string]uint)
+					for name, region := range liteProject.Regions {
 						log.Println("Processing region", name)
 						for _, state := range region.BlockStates {
 							if state == 0 {
@@ -112,7 +117,11 @@ func main() {
 					}
 
 					for item, amount := range items {
-						log.Println(item, amount)
+						if item == "minecraft:air" {
+							continue
+						}
+
+						project.CreateResource(item, amount)
 					}
 
 					return nil

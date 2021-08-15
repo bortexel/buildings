@@ -24,3 +24,14 @@ func ListProjects(_ *http.Request) (interface{}, error) {
 	Database.Find(&projects)
 	return projects, nil
 }
+
+func (p *Project) CreateResource(id string, amount uint) *Resource {
+	resource := &Resource{
+		MinecraftID: id,
+		Amount:      amount,
+		ProjectID:   p.ID,
+	}
+
+	Database.Save(resource)
+	return resource
+}
