@@ -1,0 +1,22 @@
+name: Build Docker image and push it
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out to the root
+        uses: actions/checkout@v2
+      - name: Download latest binary
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+      - name: Build, tag, and push Docker image to registry
+        run: |
+          docker login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} registry.ruscalworld.ru
+          docker build -t registry.ruscalworld.ru/bortexel/buildings:latest .
+          docker push registry.ruscalworld.ru/bortexel/buildings:latest

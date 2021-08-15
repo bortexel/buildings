@@ -1,0 +1,22 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: bortexel
+      MYSQL_DATABASE: buildings
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+  server:
+    image: localhost:5000/bortexel/buildings:latest
+    restart: always
+    ports:
+      - "7878:8080"
+    environment:
+      BB_SQL_HOST: "mysql"
+      BB_SQL_USER: "root"
+      BB_SQL_PASSWORD: "bortexel"
+      BB_SQL_DATABASE: "buildings"
+volumes:
+  mysql-data:
