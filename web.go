@@ -31,6 +31,7 @@ func endpoint(handler EndpointHandler) func(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(bytes)
 	}
 }
