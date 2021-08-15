@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gopkg.in/guregu/null.v4"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,12 +17,12 @@ const (
 
 type Resource struct {
 	PrimaryKey
-	Name        string `json:"name"`
-	MinecraftID string `json:"minecraft_id"`
-	Amount      uint   `json:"amount"`
-	Status      uint   `json:"status"`
-	ProjectID   uint   `json:"project_id"`
-	AssigneeID  uint   `json:"assignee_id"`
+	Name        string   `json:"name"`
+	MinecraftID string   `json:"minecraft_id"`
+	Amount      uint     `json:"amount"`
+	Status      uint     `json:"status"`
+	ProjectID   uint     `json:"project_id"`
+	AssigneeID  null.Int `json:"assignee_id"`
 	Timestamps
 }
 
@@ -79,4 +80,16 @@ func (r Resource) AmountText() string {
 	}
 
 	return builder.String()
+}
+
+func (r Resource) GetAssigneeName() string {
+	if r.AssigneeID.Valid {
+		var member Member
+		Database.Find(&member, r.AssigneeID.Int64)
+		if member.IsValid() {
+			return member.Name
+		}
+	}
+
+	return ""
 }

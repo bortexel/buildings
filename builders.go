@@ -33,7 +33,7 @@ func main() {
 		return
 	}
 
-	err = Database.AutoMigrate(&Project{}, &Resource{})
+	err = Database.AutoMigrate(&Project{}, &Resource{}, &Member{})
 	if err != nil {
 		log.Fatalln("Unable to run migrations:", err)
 		return
@@ -47,6 +47,10 @@ func main() {
 
 		router.Get("/projects/{id}", view("project", func(r *http.Request) interface{} {
 			return ProjectPage(r)
+		}))
+
+		router.Get("/members", view("members", func(r *http.Request) interface{} {
+			return AllMembers()
 		}))
 	})
 
