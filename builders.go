@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -37,17 +36,9 @@ func main() {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/projects/{id}", func(writer http.ResponseWriter, request *http.Request) {
-		id := chi.URLParam(request, "id")
-		project := &Project{}
-		Database.Find(&project, id)
-
-		body, err := json.Marshal(project)
-		if err != nil {
-			return
-		}
-
-		_, _ = writer.Write(body)
+	router.Route("/api/v1", func(router chi.Router) {
+		router.Get("/projects", endpoint(ListProjects))
+		router.Get("/projects/{id}", endpoint(FindProject))
 	})
 
 	app := cli.App{
