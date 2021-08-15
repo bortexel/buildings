@@ -4,11 +4,12 @@ import (
 	"compress/gzip"
 	"encoding/binary"
 	"fmt"
-	"github.com/bortexel/buildings/litematica"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/bortexel/buildings/litematica"
 	"github.com/go-chi/chi/v5"
 	"github.com/urfave/cli/v2"
 	"gorm.io/driver/mysql"
@@ -72,6 +73,11 @@ func main() {
 						Aliases: []string{"f"},
 						Value:   "project.litematica",
 					},
+					&cli.StringFlag{
+						Name:    "locale",
+						Aliases: []string{"l"},
+						Value:   "data/locale.json",
+					},
 				},
 				Action: func(context *cli.Context) error {
 					path := context.String("file")
@@ -116,12 +122,22 @@ func main() {
 						}
 					}
 
+					locale, err := LoadLocale(context.String("locale"))
+					if err != nil {
+						return err
+					}
+
 					for item, amount := range items {
 						if item == "minecraft:air" {
 							continue
 						}
 
-						project.CreateResource(item, amount)
+						name := item
+						if localizedName, ok := locale.Translations["block."+strings.ReplaceAll(name, ":", ".")]; ok {
+							name = localizedName
+						}
+
+						project.CreateResource(item, name, amount)
 					}
 
 					return nil

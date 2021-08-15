@@ -6,6 +6,7 @@ import (
 
 type Resource struct {
 	PrimaryKey
+	Name        string `json:"name"`
 	MinecraftID string `json:"minecraft_id"`
 	Amount      uint   `json:"amount"`
 	Status      uint   `json:"status"`
