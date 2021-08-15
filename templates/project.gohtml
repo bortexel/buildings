@@ -1,6 +1,7 @@
 {{ template "base" . }}
 {{ define "content" }}
     <h1>{{ .Project.Name }}</h1>
+    <p>{{ .Project.GetDescription }}</p>
     <div class="row">
         <div class="col-sm-6">
             <p>Ресурсы:</p>

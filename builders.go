@@ -112,7 +112,8 @@ func main() {
 					}
 
 					project := &Project{
-						Name: liteProject.Metadata.Name,
+						Name:     liteProject.Metadata.Name,
+						Progress: 0,
 					}
 
 					Database.Save(project)

@@ -17,11 +17,11 @@ const (
 
 type Resource struct {
 	PrimaryKey
-	Name        string   `json:"name"`
-	MinecraftID string   `json:"minecraft_id"`
-	Amount      uint     `json:"amount"`
-	Status      uint     `json:"status"`
-	ProjectID   uint     `json:"project_id"`
+	Name        string   `json:"name" gorm:"not null"`
+	MinecraftID string   `json:"minecraft_id" gorm:"not null"`
+	Amount      uint     `json:"amount" gorm:"not null"`
+	Status      uint     `json:"status" gorm:"not null"`
+	ProjectID   uint     `json:"project_id" gorm:"not null"`
 	AssigneeID  null.Int `json:"assignee_id"`
 	Timestamps
 }

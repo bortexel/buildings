@@ -10,9 +10,9 @@ const (
 
 type Member struct {
 	PrimaryKey
-	Name   string      `json:"name"`
-	Roles  int         `json:"roles"`
-	Status int         `json:"status"`
+	Name   string      `json:"name" gorm:"not null"`
+	Roles  int         `json:"roles" gorm:"not null"`
+	Status int         `json:"status" gorm:"not null"`
 	Note   null.String `json:"note"`
 	Timestamps
 }

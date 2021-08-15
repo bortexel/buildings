@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"gopkg.in/guregu/null.v4"
 )
 
 type Project struct {
 	PrimaryKey
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Progress    int    `json:"progress"`
+	Name        string      `json:"name" gorm:"not null"`
+	Description null.String `json:"description"`
+	Progress    int         `json:"progress" gorm:"not null"`
 	Timestamps
 }
 
@@ -80,4 +81,8 @@ func (p *Project) GetResources() []Resource {
 	var resources []Resource
 	Database.Find(&resources, "project_id = ?", p.ID)
 	return resources
+}
+
+func (p Project) GetDescription() string {
+	return p.Description.String
 }
