@@ -39,6 +39,8 @@ func main() {
 	router.Route("/api/v1", func(router chi.Router) {
 		router.Get("/projects", endpoint(ListProjects))
 		router.Get("/projects/{id}", endpoint(FindProject))
+
+		router.Get("/resources", endpoint(ListResources))
 	})
 
 	app := cli.App{
