@@ -10,6 +10,7 @@ type Project struct {
 	PrimaryKey
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Progress    int    `json:"progress"`
 	Timestamps
 }
 
@@ -18,6 +19,35 @@ func ProjectByID(r *http.Request) *Project {
 	var project *Project
 	Database.Find(&project, id)
 	return project
+}
+
+type ProjectPageData struct {
+	Project          *Project
+	Resources        []Resource
+	ResourceProgress int
+}
+
+func ProjectPage(r *http.Request) ProjectPageData {
+	project := ProjectByID(r)
+	resources := project.GetResources()
+
+	completedResources := 0
+	for _, resource := range resources {
+		if resource.Status == StatusCompleted {
+			completedResources++
+		}
+	}
+
+	resourceProgress := 0
+	if len(resources) > 0 {
+		resourceProgress = int(float64(completedResources) / float64(len(resources)) * 100)
+	}
+
+	return ProjectPageData{
+		Project:          project,
+		Resources:        resources,
+		ResourceProgress: resourceProgress,
+	}
 }
 
 func FindProject(r *http.Request) (interface{}, error) {
@@ -44,4 +74,10 @@ func (p *Project) CreateResource(id string, name string, amount uint) *Resource 
 
 	Database.Save(resource)
 	return resource
+}
+
+func (p *Project) GetResources() []Resource {
+	var resources []Resource
+	Database.Find(&resources, "project_id = ?", p.ID)
+	return resources
 }

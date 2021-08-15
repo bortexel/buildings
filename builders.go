@@ -46,7 +46,7 @@ func main() {
 		}))
 
 		router.Get("/projects/{id}", view("project", func(r *http.Request) interface{} {
-			return ProjectByID(r)
+			return ProjectPage(r)
 		}))
 	})
 

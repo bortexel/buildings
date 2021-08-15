@@ -1,4 +1,44 @@
 {{ template "base" . }}
 {{ define "content" }}
-    <h1>{{ .Data.Name }}</h1>
+    <h1>{{ .Project.Name }}</h1>
+    <div class="row">
+        <div class="col-sm-6">
+            <p>Ресурсы:</p>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ .ResourceProgress }}%;" aria-valuenow="{{ .ResourceProgress }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress }}%</div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <p>Строительство:</p>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ .Project.Progress }}%;" aria-valuenow="{{ .Project.Progress }}" aria-valuemin="0" aria-valuemax="100">{{ .Project.Progress }}%</div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <h2>Требуемые ресурсы</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Название</th>
+            <th scope="col">Идентификатор</th>
+            <th scope="col">Количество</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Ответственный</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{ range .Resources }}
+            <tr class="{{ .TableClass }}">
+                <th scope="row">{{ .ID }}</th>
+                <td>{{ .Name }}</td>
+                <td><code>{{ .MinecraftID }}</code></td>
+                <td>{{ .AmountText }}</td>
+                <td>{{ .StatusText }}</td>
+                <td></td>
+            </tr>
+        {{ end }}
+        </tbody>
+    </table>
 {{ end }}

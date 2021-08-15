@@ -48,11 +48,7 @@ func view(name string, provider func(r *http.Request) interface{}) func(w http.R
 			return
 		}
 
-		err = tmpl.Execute(w, struct {
-			Data interface{}
-		}{
-			provider(r),
-		})
+		err = tmpl.Execute(w, provider(r))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println(err)
