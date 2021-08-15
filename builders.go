@@ -3,7 +3,9 @@ package main
 import (
 	"compress/gzip"
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"gopkg.in/guregu/null.v4"
 	"log"
 	"net/http"
 	"os"
@@ -160,6 +162,127 @@ func main() {
 					}
 
 					return nil
+				},
+			},
+			{
+				Name: "member",
+				Subcommands: []*cli.Command{
+					{
+						Name: "create",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name: "name",
+							},
+						},
+						Action: func(context *cli.Context) error {
+							name := context.String("name")
+							member := Member{
+								Name: name,
+							}
+							Database.Save(&member)
+							log.Println("Member with ID", member.ID, "has been successfully created")
+							return nil
+						},
+					},
+					{
+						Name: "describe",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:     "id",
+								Required: true,
+							},
+							&cli.BoolFlag{
+								Name:    "clear",
+								Aliases: []string{"c"},
+							},
+							&cli.StringFlag{
+								Name: "note",
+							},
+						},
+						Action: func(context *cli.Context) error {
+							var member Member
+							Database.Find(&member, context.Int64("id"))
+							if !member.IsValid() {
+								return errors.New("member not found")
+							}
+
+							if context.Bool("clear") {
+								member.Note = null.String{}
+								log.Println("Clearing note for member", member.Name)
+							} else {
+								member.Note = null.StringFrom(context.String("note"))
+								log.Println("Setting note for member", member.Name, "to", member.Note)
+							}
+
+							Database.Save(member)
+							return nil
+						},
+					},
+				},
+			},
+			{
+				Name: "project",
+				Subcommands: []*cli.Command{
+					{
+						Name: "describe",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:     "id",
+								Required: true,
+							},
+							&cli.BoolFlag{
+								Name:    "clear",
+								Aliases: []string{"c"},
+							},
+							&cli.StringFlag{
+								Name: "description",
+							},
+						},
+						Action: func(context *cli.Context) error {
+							var project Project
+							Database.Find(&project, context.Int64("id"))
+							if !project.IsValid() {
+								return errors.New("project not found")
+							}
+
+							if context.Bool("clear") {
+								project.Description = null.String{}
+								log.Println("Clearing description for project", project.Name)
+							} else {
+								project.Description = null.StringFrom(context.String("description"))
+								log.Println("Setting description for project", project.Name, "to", project.Description)
+							}
+
+							Database.Save(project)
+							return nil
+						},
+					},
+					{
+						Name: "rename",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:     "id",
+								Required: true,
+							},
+							&cli.StringFlag{
+								Name:     "name",
+								Required: true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							var project Project
+							Database.Find(&project, context.Int64("id"))
+							if !project.IsValid() {
+								return errors.New("project not found")
+							}
+
+							name := context.String("name")
+							log.Println("Renaming project", project.Name, "to", name)
+							project.Name = name
+							Database.Save(project)
+							return nil
+						},
+					},
 				},
 			},
 		},
