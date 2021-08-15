@@ -8,7 +8,6 @@ services:
     restart: unless-stopped
     volumes:
       - mysql-data:/var/lib/mysql
-      - /etc/bortexel/buildings:/home/container/data
   server:
     image: localhost:5000/bortexel/buildings:latest
     depends_on:
@@ -17,9 +16,11 @@ services:
     ports:
       - "7878:8080"
     environment:
-      BB_SQL_HOST: "mysql"
-      BB_SQL_USER: "root"
-      BB_SQL_PASSWORD: "bortexel"
-      BB_SQL_DATABASE: "buildings"
+      BB_SQL_HOST: mysql
+      BB_SQL_USER: root
+      BB_SQL_PASSWORD: bortexel
+      BB_SQL_DATABASE: buildings
+    volumes:
+      - /etc/bortexel/buildings:/home/container/data
 volumes:
   mysql-data:
