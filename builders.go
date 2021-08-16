@@ -3,19 +3,21 @@ package main
 import (
 	"compress/gzip"
 	"encoding/binary"
+	"encoding/csv"
 	"errors"
 	"fmt"
-	"gopkg.in/guregu/null.v4"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/bortexel/buildings/litematica"
 	"github.com/go-chi/chi/v5"
 	"github.com/urfave/cli/v2"
+	"gopkg.in/guregu/null.v4"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -101,47 +103,95 @@ func main() {
 					if err != nil {
 						return err
 					}
-
 					defer file.Close()
-					reader, err := gzip.NewReader(file)
-					if err != nil {
-						return err
-					}
 
-					liteProject, err := litematica.Load(reader)
-					if err != nil {
-						return err
+					ext := filepath.Ext(path)
+					projectName := strings.TrimSuffix(filepath.Base(path), ext)
+					items := make(map[string]uint)
+
+					switch ext {
+					case ".csv":
+						reader := csv.NewReader(file)
+						rows, err := reader.ReadAll()
+						if err != nil {
+							return err
+						}
+
+						itemNameIndex, itemAmountIndex := -1, -1
+
+						for i, row := range rows {
+							if i == 0 {
+								for j, columnName := range row {
+									if columnName == "Item" {
+										itemNameIndex = j
+									}
+
+									if columnName == "Total" {
+										itemAmountIndex = j
+									}
+								}
+
+								if itemNameIndex < 0 || itemAmountIndex < 0 {
+									return errors.New("unable to determine indexes of required columns: \"Item\" and \"Total\"")
+								}
+
+								continue
+							}
+
+							name := row[itemNameIndex]
+							amountString := row[itemAmountIndex]
+							amount, err := strconv.Atoi(amountString)
+							if err != nil {
+								return err
+							}
+
+							items[name] = uint(amount)
+						}
+					default:
+						reader, err := gzip.NewReader(file)
+						if err != nil {
+							return err
+						}
+
+						liteProject, err := litematica.Load(reader)
+						if err != nil {
+							return err
+						}
+
+						if liteProject.Metadata.Name != "Unnamed" {
+							projectName = liteProject.Metadata.Name
+						}
+
+						for name, region := range liteProject.Regions {
+							log.Println("Processing region", name)
+							for _, state := range region.BlockStates {
+								if state == 0 {
+									continue
+								}
+
+								// https://github.com/maruohon/litematica/issues/53#issuecomment-520281566
+								// IDK why 256, let's just hope that it's enough
+								bytes := make([]byte, 256)
+								binary.BigEndian.PutUint64(bytes[:], uint64(state))
+								for _, b := range bytes {
+									if int(b) >= len(region.BlockStatePalette) {
+										continue
+									}
+
+									item := region.BlockStatePalette[b]
+									items[item.Name] += 1
+								}
+							}
+						}
 					}
 
 					project := &Project{
-						Name:     liteProject.Metadata.Name,
+						Name:     projectName,
 						Progress: 0,
 					}
 
 					Database.Save(project)
-
-					items := make(map[string]uint)
-					for name, region := range liteProject.Regions {
-						log.Println("Processing region", name)
-						for _, state := range region.BlockStates {
-							if state == 0 {
-								continue
-							}
-
-							// https://github.com/maruohon/litematica/issues/53#issuecomment-520281566
-							// IDK why 256, let's just hope that it's enough
-							bytes := make([]byte, 256)
-							binary.BigEndian.PutUint64(bytes[:], uint64(state))
-							for _, b := range bytes {
-								if int(b) >= len(region.BlockStatePalette) {
-									continue
-								}
-
-								item := region.BlockStatePalette[b]
-								items[item.Name] += 1
-							}
-						}
-					}
+					log.Println("Successfully created project", project.Name, "with ID", project.ID)
 
 					locale, err := LoadLocale(context.String("locale"))
 					if err != nil {
@@ -153,14 +203,21 @@ func main() {
 							continue
 						}
 
-						name := item
+						name := strings.TrimSpace(item)
 						if localizedName, ok := locale.Translations["block."+strings.ReplaceAll(name, ":", ".")]; ok {
 							name = localizedName
 						}
 
-						project.CreateResource(item, name, amount)
+						if strings.ToLower(item) == item {
+							// We have ID in "item"
+							project.CreateResource(null.StringFrom(item), name, amount)
+						} else {
+							// We have item name in "item"
+							project.CreateResource(null.String{}, name, amount)
+						}
 					}
 
+					log.Println("Successfully created", len(items), "resources associated with project", project.Name)
 					return nil
 				},
 			},

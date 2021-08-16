@@ -65,7 +65,7 @@ func ListProjects(_ *http.Request) (interface{}, error) {
 	return AllProjects(), nil
 }
 
-func (p *Project) CreateResource(id string, name string, amount uint) *Resource {
+func (p *Project) CreateResource(id null.String, name string, amount uint) *Resource {
 	resource := &Resource{
 		MinecraftID: id,
 		Name:        name,
