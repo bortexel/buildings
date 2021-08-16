@@ -45,6 +45,8 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Route("/", func(r chi.Router) {
+		router.Get("/", view("home", func(r *http.Request) interface{} { return nil }))
+
 		router.Get("/projects", view("projects", func(r *http.Request) interface{} {
 			return AllProjects()
 		}))
