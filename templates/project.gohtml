@@ -2,6 +2,10 @@
 {{ define "content" }}
     <h1>{{ .Project.Name }}</h1>
     <p>{{ .Project.GetDescription }}</p>
+    {{ if .Project.LitematicaURL.Valid }}
+        <a href="{{ .Project.LitematicaURL.String }}" class="btn btn-dark" target="_blank">Скачать лайтматику</a>
+        <br><br>
+    {{ end }}
     <div class="row">
         <div class="col-sm-6">
             <p>Ресурсы:</p>

@@ -10,9 +10,10 @@ import (
 
 type Project struct {
 	PrimaryKey
-	Name        string      `json:"name" gorm:"not null"`
-	Description null.String `json:"description"`
-	Progress    int         `json:"progress" gorm:"not null"`
+	Name          string      `json:"name" gorm:"not null"`
+	Description   null.String `json:"description"`
+	Progress      int         `json:"progress" gorm:"not null"`
+	LitematicaURL null.String `json:"litematica_url"`
 	Timestamps
 }
 
