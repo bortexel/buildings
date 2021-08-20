@@ -12,7 +12,7 @@ const (
 	StatusAbsent    = 0
 	StatusNotEnough = 1
 	StatusAssigned  = 2
-	StatusCompleted = 3
+	StatusDone      = 3
 )
 
 type Resource struct {
@@ -40,7 +40,7 @@ func (r Resource) StatusText() string {
 		return "Частично есть"
 	case StatusAssigned:
 		return "В процессе"
-	case StatusCompleted:
+	case StatusDone:
 		return "Готово"
 	default:
 		return ""
@@ -55,7 +55,7 @@ func (r Resource) TableClass() string {
 		return "table-warning"
 	case StatusAssigned:
 		return "table-info"
-	case StatusCompleted:
+	case StatusDone:
 		return "table-success"
 	default:
 		return ""

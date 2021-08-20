@@ -6,7 +6,10 @@
         <div class="col-sm-6">
             <p>Ресурсы:</p>
             <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: {{ .ResourceProgress }}%;" aria-valuenow="{{ .ResourceProgress }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress }}%</div>
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ .ResourceProgress.Done }}%;" aria-valuenow="{{ .ResourceProgress.Done }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress.Done }}%</div>
+                <div class="progress-bar bg-info" role="progressbar" style="width: {{ .ResourceProgress.Assigned }}%;" aria-valuenow="{{ .ResourceProgress.Assigned }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress.Assigned }}%</div>
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ .ResourceProgress.NotEnough }}%;" aria-valuenow="{{ .ResourceProgress.NotEnough }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress.NotEnough }}%</div>
+                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ .ResourceProgress.Absent }}%;" aria-valuenow="{{ .ResourceProgress.Absent }}" aria-valuemin="0" aria-valuemax="100">{{ .ResourceProgress.Absent }}%</div>
             </div>
         </div>
         <div class="col-sm-6">

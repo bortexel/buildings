@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -25,23 +26,57 @@ func ProjectByID(r *http.Request) *Project {
 type ProjectPageData struct {
 	Project          *Project
 	Resources        []Resource
-	ResourceProgress int
+	ResourceProgress ResourceProgress
+}
+
+type ResourceProgress struct {
+	Done      int
+	Assigned  int
+	NotEnough int
+	Absent    int
+}
+
+func GetResourceProgress(resources []Resource) ResourceProgress {
+	resourceProgress := ResourceProgress{}
+
+	for _, resource := range resources {
+		switch resource.Status {
+		case StatusDone:
+			resourceProgress.Done++
+		case StatusAssigned:
+			resourceProgress.Assigned++
+		case StatusNotEnough:
+			resourceProgress.NotEnough++
+		case StatusAbsent:
+			resourceProgress.Absent++
+		}
+	}
+
+	return resourceProgress
+}
+
+func (r *ResourceProgress) Normalize() {
+	for r.GetTotal() > 100 {
+		r.Absent--
+	}
+}
+
+func (r *ResourceProgress) GetTotal() int {
+	return r.Done + r.Assigned + r.NotEnough + r.Absent
 }
 
 func ProjectPage(r *http.Request) ProjectPageData {
 	project := ProjectByID(r)
 	resources := project.GetResources()
+	resourceProgress := GetResourceProgress(resources)
 
-	completedResources := 0
-	for _, resource := range resources {
-		if resource.Status == StatusCompleted {
-			completedResources++
-		}
-	}
-
-	resourceProgress := 0
 	if len(resources) > 0 {
-		resourceProgress = int(float64(completedResources) / float64(len(resources)) * 100)
+		resourceProgress.Done = int(math.Ceil(float64(resourceProgress.Done) / float64(len(resources)) * 100))
+		resourceProgress.Assigned = int(math.Ceil(float64(resourceProgress.Assigned) / float64(len(resources)) * 100))
+		resourceProgress.NotEnough = int(math.Ceil(float64(resourceProgress.NotEnough) / float64(len(resources)) * 100))
+		resourceProgress.Absent = int(math.Ceil(float64(resourceProgress.Absent) / float64(len(resources)) * 100))
+	} else {
+		resourceProgress = ResourceProgress{}
 	}
 
 	return ProjectPageData{
