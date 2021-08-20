@@ -128,7 +128,7 @@ func main() {
 										itemNameIndex = j
 									}
 
-									if columnName == "Total" {
+									if columnName == "Missing" {
 										itemAmountIndex = j
 									}
 								}
