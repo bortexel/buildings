@@ -15,8 +15,11 @@
         <tbody>
         {{ range . }}
             <tr class="{{ .TableClass }}">
-                <td><img src="https://skins.bortexel.ru/avatars/{{ .Name }}" alt="" width="24" height="24"></td>
-                <td>{{ .Name }}</td>
+                <th scope="row">{{ .ID }}</th>
+                <td>
+                    <img src="https://skins.bortexel.ru/avatars/{{ .Name }}" alt="" width="24" height="24">&nbsp;
+                    {{ .Name }}
+                </td>
                 <td>
                     {{ if .IsDesigner }}
                         <span class="badge bg-secondary">Проектировщик</span>
