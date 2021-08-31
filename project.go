@@ -58,22 +58,22 @@ func GetResourceProgress(resources []Resource) ResourceProgress {
 
 func (r *ResourceProgress) Normalize() {
 	for r.GetTotal() > 100 {
-		if r.Absent > 0 {
+		if r.Absent > 1 {
 			r.Absent--
 			continue
 		}
 
-		if r.Assigned > 0 {
+		if r.Assigned > 1 {
 			r.Assigned--
 			continue
 		}
 
-		if r.NotEnough > 0 {
+		if r.NotEnough > 1 {
 			r.NotEnough--
 			continue
 		}
 
-		if r.Done > 0 {
+		if r.Done > 1 {
 			r.Done--
 			continue
 		}
