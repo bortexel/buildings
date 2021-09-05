@@ -6,10 +6,24 @@
         {{ range . }}
             <div class="col">
                 <div class="card h-100" style="margin-bottom: 24px">
+                    {{ if .ScreenshotURL.Valid }}
+                        <img class="card-img-top" src="{{ .ScreenshotURL.String }}" alt="{{ .Name }}">
+                    {{ end }}
                     <div class="card-body">
                         <h3>{{ .Name }}</h3>
                         <p>{{ .GetDescription }}</p>
-                        <a href="/projects/{{ .ID }}" class="btn btn-primary">Подробнее</a>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <a href="/projects/{{ .ID }}" class="btn btn-dark">Подробнее</a>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ .Progress }}%;" aria-valuenow="{{ .Progress }}" aria-valuemin="0" aria-valuemax="100">{{ .Progress }}%</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

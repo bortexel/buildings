@@ -13,6 +13,7 @@ type Project struct {
 	Name          string      `json:"name" gorm:"not null"`
 	Description   null.String `json:"description"`
 	Progress      int         `json:"progress" gorm:"not null"`
+	ScreenshotURL null.String `json:"screenshot_url"`
 	LitematicaURL null.String `json:"litematica_url"`
 	Timestamps
 }
