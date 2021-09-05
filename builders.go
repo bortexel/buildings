@@ -6,18 +6,19 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/bortexel/buildings/litematica"
-	"github.com/go-chi/chi/v5"
-	"github.com/urfave/cli/v2"
-	"gopkg.in/guregu/null.v4"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/bortexel/buildings/litematica"
+	"github.com/go-chi/chi/v5"
+	"github.com/urfave/cli/v2"
+	"gopkg.in/guregu/null.v4"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (

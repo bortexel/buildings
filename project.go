@@ -31,10 +31,10 @@ type ProjectPageData struct {
 }
 
 type ResourceProgress struct {
-	Done      uint
-	Assigned  uint
-	NotEnough uint
-	Absent    uint
+	Done      float64
+	Assigned  float64
+	NotEnough float64
+	Absent    float64
 }
 
 func GetResourceProgress(resources []Resource) ResourceProgress {
@@ -43,32 +43,32 @@ func GetResourceProgress(resources []Resource) ResourceProgress {
 	for _, resource := range resources {
 		switch resource.Status {
 		case StatusDone:
-			resourceProgress.Done += resource.Amount
+			resourceProgress.Done += float64(resource.Amount)
 		case StatusAssigned:
-			resourceProgress.Assigned += resource.Amount
+			resourceProgress.Assigned += float64(resource.Amount)
 		case StatusNotEnough:
-			resourceProgress.NotEnough += resource.Amount
+			resourceProgress.NotEnough += float64(resource.Amount)
 		case StatusAbsent:
-			resourceProgress.Absent += resource.Amount
+			resourceProgress.Absent += float64(resource.Amount)
 		}
 	}
 
 	return resourceProgress
 }
 
-func (r *ResourceProgress) Normalize() {
+func (r *ResourceProgress) NormalizePercentage() {
 	for r.GetTotal() > 100 {
-		if r.Absent > 1 {
+		if r.Absent > r.Assigned {
 			r.Absent--
 			continue
 		}
 
-		if r.Assigned > 1 {
+		if r.Assigned > r.NotEnough {
 			r.Assigned--
 			continue
 		}
 
-		if r.NotEnough > 1 {
+		if r.NotEnough > r.Done {
 			r.NotEnough--
 			continue
 		}
@@ -80,7 +80,7 @@ func (r *ResourceProgress) Normalize() {
 	}
 }
 
-func (r *ResourceProgress) GetTotal() uint {
+func (r *ResourceProgress) GetTotal() float64 {
 	return r.Done + r.Assigned + r.NotEnough + r.Absent
 }
 
@@ -88,18 +88,18 @@ func ProjectPage(r *http.Request) ProjectPageData {
 	project := ProjectByID(r)
 	resources := project.GetResources()
 	resourceProgress := GetResourceProgress(resources)
-	total := float64(resourceProgress.GetTotal())
+	total := resourceProgress.GetTotal()
 
 	if len(resources) > 0 {
-		resourceProgress.Done = uint(math.Ceil(float64(resourceProgress.Done) / total * 100))
-		resourceProgress.Assigned = uint(math.Ceil(float64(resourceProgress.Assigned) / total * 100))
-		resourceProgress.NotEnough = uint(math.Ceil(float64(resourceProgress.NotEnough) / total * 100))
-		resourceProgress.Absent = uint(math.Ceil(float64(resourceProgress.Absent) / total * 100))
+		resourceProgress.Done = math.Ceil(resourceProgress.Done / total * 100)
+		resourceProgress.Assigned = math.Ceil(resourceProgress.Assigned / total * 100)
+		resourceProgress.NotEnough = math.Ceil(resourceProgress.NotEnough / total * 100)
+		resourceProgress.Absent = math.Ceil(resourceProgress.Absent / total * 100)
 	} else {
 		resourceProgress = ResourceProgress{}
 	}
 
-	resourceProgress.Normalize()
+	resourceProgress.NormalizePercentage()
 
 	return ProjectPageData{
 		Project:          project,
