@@ -13,6 +13,7 @@ type Project struct {
 	Name          string      `json:"name" gorm:"not null"`
 	Description   null.String `json:"description"`
 	Progress      int         `json:"progress" gorm:"not null"`
+	Priority      int         `json:"priority"`
 	ScreenshotURL null.String `json:"screenshot_url"`
 	LitematicaURL null.String `json:"litematica_url"`
 	Timestamps
@@ -115,7 +116,7 @@ func FindProject(r *http.Request) (interface{}, error) {
 
 func AllProjects() []Project {
 	var projects []Project
-	Database.Find(&projects)
+	Database.Order("priority").Find(&projects)
 	return projects
 }
 
