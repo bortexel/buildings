@@ -310,7 +310,7 @@ func main() {
 								log.Println("Clearing description for project", project.Name)
 							} else {
 								project.Description = null.StringFrom(context.String("description"))
-								log.Println("Setting description for project", project.Name, "to", project.Description)
+								log.Println("Setting description for project", project.Name, "to", project.Description.String)
 							}
 
 							Database.Save(project)
