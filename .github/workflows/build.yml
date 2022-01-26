@@ -13,17 +13,21 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ^1.16
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+
       - name: Get dependencies and build
         run: |
           go get -d ./... &&
           go build -o buildings
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v1
         with:
           name: build-artifacts
           path: buildings
+
   build-docker:
     needs: build-go
     name: Build Docker Image
@@ -31,14 +35,34 @@ jobs:
     steps:
       - name: Check out to the root
         uses: actions/checkout@v2
+
       - name: Download latest binary
         uses: actions/download-artifact@v2
         with:
           name: build-artifacts
+
       - name: Update permissions on binary file
         run: chmod +x buildings
-      - name: Build, tag, and push Docker image to registry
-        run: |
-          docker login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} registry.ruscalworld.ru
-          docker build -t registry.ruscalworld.ru/bortexel/buildings:latest .
-          docker push registry.ruscalworld.ru/bortexel/buildings:latest
+
+      - name: Login to Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          tags: type=sha
+          images: ghcr.io/bortexel/buildings
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
